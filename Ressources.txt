@@ -1,0 +1,12 @@
+Mongo cloud -----------
+username : guest
+password : Anaguest
+Virtual envirement-----------
+# Activate the virtual environment (Windows)
+myenv\Scripts\activate
+
+# Install dependencies within the virtual environment
+pip install -r requirements.txt
+
+# Run the project
+python server.py
