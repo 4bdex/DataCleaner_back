@@ -10,3 +10,16 @@ pip install -r requirements.txt
 
 # Run the project
 python server.py
+
+
+----------------Numeric data----------------> Mohammed
+traitement Numeric
+----------------Textuel data----------------> Abdex
+texte
+----------------Any other traitement--------> Khalid
+Date
+Regex expression
+Conversion de type de columme. (string -> int : parsing)
+Outlier Detection and Treatment.
+...
+
