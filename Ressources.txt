@@ -12,6 +12,13 @@ pip install -r requirements.txt
 python server.py
 
 
+---------------Problem with env?---------
+create your own env
+activate it : "env name"/Scripts/activate
+pip install -r requirements.txt
+-----------------------------------------
+
+
 ----------------Numeric data----------------> Mohammed
 traitement Numeric
 ----------------Textuel data----------------> Abdex
