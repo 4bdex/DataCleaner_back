@@ -10,7 +10,7 @@ from flask import request, jsonify
 from imblearn.over_sampling import SMOTE
 from bs4 import BeautifulSoup
 from textblob import TextBlob
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 
 
@@ -167,41 +167,13 @@ def removeDuplicates():
 # Dealing with Noisy Text
 # column Language Identification(dataset, column) 
 def languageIdentification(dataset, column):
-    for row in dataset:
-        text = row[column]
-        try:
-            language = detect(text)
-            return language
-        except Exception as e:
-            # Handle potential errors in language detection
-            print(f"Error processing text: {text}. Error: {str(e)}")
-            return 'Unknown'
+    pass
     
 # spell checking(dataset, column, language) language: auto, en, fr, de, es , de, ru, ar. this doesn't work
 def spellChecking():
-    try:
-        data = request.get_json()
-        dataset = data['dataset']
-        column = data['column']
-        
-        spell = SpellChecker()  # Create a SpellChecker object
-        
-        for item in dataset:
-            # Combine the list of words into a single string
-            text = ' '.join(item[column])
-            
-            # Perform spell checking on the text
-            corrected_text = []
-            for word in text.split():
-                corrected_text.append(spell.correction(word))
-            
-            # Update the column with corrected text (split back to list of words)
-            item[column] = corrected_text
-            
-        return jsonify({'message': 'Column data spell checked successfully', 'dataset': dataset})
-    
-    except Exception as e:
-        return jsonify({'message': str(e)})
+    pass
+
+
 
 # clean with custom patterns (dataset, column, pattern)
 def cleanWithCustomPatterns():
@@ -285,7 +257,7 @@ def tfidf():
         return jsonify({'message': str(e)})
     
     
-# word embedding (dataset, column, embedding) #embedding: word2vec, fasttext, glove, bert
+# word embedding (dataset, column, embedding) #embedding: word2vec, tfidf, bag of words
 def wordEmbedding():
     try:
         data = request.get_json()
@@ -293,31 +265,39 @@ def wordEmbedding():
         column = data['column']
         embedding = data['embedding']
         
-        # Load the embedding model
-        if embedding == 'word2vec':
-            from gensim.models import Word2Vec
-            model = Word2Vec.load('models/word2vec.bin')
-        elif embedding == 'fasttext':
-            from gensim.models import FastText
-            model = FastText.load('models/fasttext.bin')
-        elif embedding == 'glove':
-            from gensim.models import KeyedVectors
-            model = KeyedVectors.load_word2vec_format('models/glove.txt', binary=False)
-        elif embedding == 'bert':
-            from sentence_transformers import SentenceTransformer
-            model = SentenceTransformer('bert-base-nli-mean-tokens')
+        # if embedding == 'word2vec':
+        #     model = Word2Vec.load('models/word2vec.bin')  # Load Word2Vec model
+        #     for row in dataset:
+        #         text = row[column]
+        #         word_embeddings = []
+        #         for word in text.split():
+        #             if word in model:
+        #                 word_embeddings.append(model[word])
+        #             else:
+        #                 word_embeddings.append([0.0] * 100)  # Replace with the embedding dimension of your Word2Vec model
+        #         row[column] = word_embeddings
         
-        # Get the embedding for each word in the text
-        for row in dataset:
-            text = row[column]
-            word_embeddings = []
-            for word in text.split():
-                word_embeddings.append(model[word])
-            row[column] = word_embeddings
+        if embedding == 'bag of words':
+            text_data = [item[column] for item in dataset]
+            vectorizer = CountVectorizer()
+            bag_of_words = vectorizer.fit_transform(text_data).toarray().tolist()
+            for i, item in enumerate(dataset):
+                item[column] = bag_of_words[i]  # Compute bag-of-words embeddings
         
-        return jsonify({'message': 'Word embedding performed successfully', 'dataset': dataset})
+        elif embedding == 'tfidf':
+            text_data = [item[column] for item in dataset]
+            vectorizer = TfidfVectorizer()
+            tfidf_matrix = vectorizer.fit_transform(text_data).toarray().tolist()
+            for i, item in enumerate(dataset):
+                item[column] = tfidf_matrix[i]  # Compute TF-IDF embeddings
+        
+        return {'message': 'Word embedding performed successfully', 'dataset': dataset}
+    
     except Exception as e:
-        return jsonify({'message': str(e)})
+        return {'message': str(e)}
+
+
+
     
 
 
