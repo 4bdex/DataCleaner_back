@@ -9,5 +9,7 @@ bs4==0.0.1
 textblob==0.17.1
 gensim==4.3.2 ##this package is not working with python 3.12
 sentence-transformers==2.1.0
+flask_cors==4.0.0
+```
 
 

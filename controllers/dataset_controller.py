@@ -17,22 +17,12 @@ ALLOWED_EXTENSION = {'csv','json','xlsx'} # Define allowed file extensions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
 
-def convert_csv_to_json(file):
-    file.seek(0)
-    data = []
-    csv_reader = csv.DictReader(io.StringIO(file.read().decode('utf-8')))
-    for row in csv_reader:
-        data.append(row)
-    return json.dumps(data)
-
-def convert_xlsx_to_json(file):
-    file.seek(0)
-    data = pd.read_excel(file).to_dict(orient='records')
-    return json.dumps(data)
-
-def upload_json_file(file):
-    file.seek(0)
-    return file.read().decode('utf-8')
+def update_dataset(dataset_id, dataset):
+    try:
+        collection.update_one({'_id': ObjectId(dataset_id)}, {'$set': {'data': dataset}})
+        return True
+    except Exception as e:
+        return False
 
 def upload_dataset():
     if 'file' not in request.files:

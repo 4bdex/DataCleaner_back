@@ -11,29 +11,24 @@ from imblearn.over_sampling import SMOTE
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+import controllers.dataset_controller
 
 
 
 
-# replace string in a column data (dataset, column, oldString, newString)
+# replace string in a column data (dataset_id, column, oldString, newString) and update in mongo database
 def replaceString():
     try:
         data = request.get_json()
-        dataset = pd.DataFrame(data['dataset'])
+        dataset_id = data['dataset_id']
         column = data['column']
         oldString = data['oldString']
         newString = data['newString']
-
-        # Ensure the column exists in the DataFrame
-        if column in dataset.columns:
-            dataset[column] = dataset[column].astype(str).replace(oldString, newString, regex=True)
-        else:
-            return jsonify({'message': f'Column "{column}" not found in the dataset.'})
-
-        # Convert DataFrame back to list of dictionaries
-        modified_dataset = dataset.to_dict(orient='records')
-        
-        return jsonify({'message': 'String replaced successfully', 'dataset': modified_dataset})
+        dataset = controllers.dataset_controller.getDataset(dataset_id)
+        for item in dataset:
+            item[column] = item[column].replace(oldString, newString)
+        controllers.dataset_controller.updateDataset(dataset_id, dataset)
+        return jsonify({'message': 'String replaced successfully', 'dataset': dataset})
     except Exception as e:
         return jsonify({'message': str(e)})
     

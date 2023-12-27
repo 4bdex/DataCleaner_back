@@ -4,7 +4,6 @@ from controllers.Textual_controller import replaceString,removeHTML,removeSpecia
 
 def init_app_routes(app):
     app.add_url_rule('/upload', 'upload_dataset', upload_dataset, methods=['POST'])
-    app.add_url_rule('/upload2', 'upload_dataset2', upload_dataset2, methods=['POST'])
     app.add_url_rule('/get_dataset/<string:dataset_id>', 'get_dataset', get_dataset, methods=['GET'])
     app.add_url_rule('/replaceString', 'replaceString', replaceString, methods=['POST'])
     app.add_url_rule('/removeHTML', 'removeHTML', removeHTML, methods=['POST'])
