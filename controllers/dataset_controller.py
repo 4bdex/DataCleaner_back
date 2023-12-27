@@ -43,19 +43,18 @@ def upload_dataset():
         return jsonify({'error': 'No selected file'})
     
     if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                if filename.rsplit('.', 1)[1].lower() == 'csv':
-                    dataset = pd.read_csv(file).to_dict(orient='records')
-                elif filename.rsplit('.', 1)[1].lower() == 'json':
-                    dataset = pd.read_json(file).to_dict(orient='records')
-                elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
-                    dataset = pd.read_excel(file).to_dict(orient='records')
-                else:
-                    return jsonify({'Message': 'Invalid file type'})
-        
-                return jsonify({'Message': 'Dataset uploaded successfully', 'dataset': dataset})
+        filename = secure_filename(file.filename)
+        if filename.rsplit('.', 1)[1].lower() == 'csv':
+            dataset = pd.read_csv(file)
+        elif filename.rsplit('.', 1)[1].lower() == 'json':
+            dataset = pd.read_json(file)
+        elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
+            dataset = pd.read_excel(file)
+            
+        dataset_id = collection.insert_one({'data': dataset.to_json(orient='records')}).inserted_id
+        return jsonify({'message': 'Dataset uploaded successfully', 'dataset_id': str(dataset_id),'dataset': json.loads(dataset.head(50).to_json(orient='records'))})
     else:
-        return jsonify({'Message': 'Invalid file type'})
+        return jsonify({'error': 'Invalid file type'})
 
 
 def get_dataset(dataset_id):
@@ -65,13 +64,6 @@ def get_dataset(dataset_id):
     else:
         return jsonify({'error': 'Dataset not found'})
     
-# get 50 row from dataset
-def get_data(dataset_id):
-    dataset = collection.find_one({'_id': ObjectId(dataset_id)}).limit(50)
-    if dataset:
-        return jsonify({'data': json.loads(dataset['data'])})
-    else:
-        return jsonify({'error': 'Dataset not found'})
     
 ## upload all supported files formats (csv, json, txt, xml, html, pdf, docx, pptx, xlsx)
 def upload_dataset2():
