@@ -43,16 +43,19 @@ def upload_dataset():
         return jsonify({'error': 'No selected file'})
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        if filename.rsplit('.', 1)[1].lower() == 'csv':
-            dataset = convert_csv_to_json(file)
-        else:
-            dataset = file.read().decode('utf-8')
+                filename = secure_filename(file.filename)
+                if filename.rsplit('.', 1)[1].lower() == 'csv':
+                    dataset = pd.read_csv(file).to_dict(orient='records')
+                elif filename.rsplit('.', 1)[1].lower() == 'json':
+                    dataset = pd.read_json(file).to_dict(orient='records')
+                elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
+                    dataset = pd.read_excel(file).to_dict(orient='records')
+                else:
+                    return jsonify({'Message': 'Invalid file type'})
         
-        dataset_id = collection.insert_one({'data': dataset}).inserted_id
-        return jsonify({'message': 'Dataset uploaded successfully', 'dataset_id': str(dataset_id)})
+                return jsonify({'Message': 'Dataset uploaded successfully', 'dataset': dataset})
     else:
-        return jsonify({'error': 'Invalid file type'})
+        return jsonify({'Message': 'Invalid file type'})
 
 
 def get_dataset(dataset_id):
@@ -62,6 +65,13 @@ def get_dataset(dataset_id):
     else:
         return jsonify({'error': 'Dataset not found'})
     
+# get 50 row from dataset
+def get_data(dataset_id):
+    dataset = collection.find_one({'_id': ObjectId(dataset_id)}).limit(50)
+    if dataset:
+        return jsonify({'data': json.loads(dataset['data'])})
+    else:
+        return jsonify({'error': 'Dataset not found'})
     
 ## upload all supported files formats (csv, json, txt, xml, html, pdf, docx, pptx, xlsx)
 def upload_dataset2():
