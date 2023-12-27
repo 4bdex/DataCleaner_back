@@ -11,7 +11,7 @@ from imblearn.over_sampling import SMOTE
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-import controllers.dataset_controller
+from controllers.dataset_controller import getDataset, updateDataset
 
 
 
@@ -24,10 +24,10 @@ def replaceString():
         column = data['column']
         oldString = data['oldString']
         newString = data['newString']
-        dataset = controllers.dataset_controller.getDataset(dataset_id)
+        dataset = getDataset(dataset_id)
         for item in dataset:
             item[column] = item[column].replace(oldString, newString)
-        controllers.dataset_controller.updateDataset(dataset_id, dataset)
+        updateDataset(dataset_id, dataset)
         return jsonify({'message': 'String replaced successfully', 'dataset': dataset})
     except Exception as e:
         return jsonify({'message': str(e)})
