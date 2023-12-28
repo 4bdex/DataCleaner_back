@@ -1,10 +1,7 @@
 from datetime import datetime
-import io
-import csv
 import json
-import sys
 import pandas as pd
-from flask import Flask, g, request, jsonify, make_response
+from flask import request, jsonify
 from werkzeug.utils import secure_filename
 from bson import ObjectId
 from pymongo import MongoClient
