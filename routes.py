@@ -1,7 +1,5 @@
-from flask import jsonify
 from controllers.dataset_controller import upload_dataset,get_user_datasets, delete_dataset,dataset_data
-from controllers.Textual_controller import replaceString,removeHTML,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicates, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
-from controllers.utils import token_required
+from controllers.Textual_controller import replaceString,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicatesInRow, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
 from controllers.user_controller import signup, login
 
 
@@ -15,13 +13,12 @@ def init_app_routes(app):
     app.add_url_rule('/get_user_datasets', 'get_user_datasets', get_user_datasets, methods=['GET'])
     # texte handling routes
     app.add_url_rule('/replaceString', 'replaceString', replaceString, methods=['POST'])
-    app.add_url_rule('/removeHTML', 'removeHTML', removeHTML, methods=['POST'])
     app.add_url_rule('/removeSpecialCharacters', 'removeSpecialCharacters', removeSpecialCharacters, methods=['POST'])
     app.add_url_rule('/tokenize', 'tokenize', tokenize, methods=['POST'])
     app.add_url_rule('/removeStopwords', 'removeStopwords', removeStopwords, methods=['POST'])
     app.add_url_rule('/stemming', 'stemming', stemming, methods=['POST'])
     app.add_url_rule('/lemmatization', 'lemmatization', lemmatization, methods=['POST'])
-    app.add_url_rule('/removeDuplicates', 'removeDuplicates', removeDuplicates, methods=['POST'])
+    app.add_url_rule('/removeDuplicatesInRow', 'removeDuplicatesInRow', removeDuplicatesInRow, methods=['POST'])
     app.add_url_rule('/spellChecking', 'spellChecking', spellChecking, methods=['POST'])
     app.add_url_rule('/cleanWithCustomPatterns', 'cleanWithCustomPatterns', cleanWithCustomPatterns, methods=['POST'])
     app.add_url_rule('/handleEncodingIssues', 'handleEncodingIssues', handleEncodingIssues, methods=['POST'])
