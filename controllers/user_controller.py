@@ -26,6 +26,7 @@ def login():
     user = collection.find_one({'email': data['email']})
     print(user)
     if user and User(user['username'],user['email'], user['password']).check_password(data['password']):
+        # TODO: fix token generation error "module 'jwt' has no attribute 'encode'"
         token = User(user['username'],user['email'], user['password']).generate_auth_token()
         return jsonify({'token': token}), 200
     return jsonify({'message': 'Invalid credentials'}), 401
