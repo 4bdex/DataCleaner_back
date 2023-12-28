@@ -1,0 +1,34 @@
+Mongo cloud -----------
+username : guest
+password : Anaguest
+Virtual envirement-----------
+# Activate the virtual environment (Windows)
+myenv\Scripts\activate
+
+# Install dependencies within the virtual environment
+pip install -r requirements.txt
+
+# Run the project
+python server.py
+
+
+---------------Problem with env?---------
+create your own env :
+python -m venv venv
+activate it : venv/Scripts/activate
+pip install -r requirements.txt
+-------------------------------
+-----------------------------------------
+
+
+----------------Numeric data----------------> Mohammed
+traitement Numeric
+----------------Textuel data----------------> Abdex
+texte
+----------------Any other traitement--------> Khalid
+Date
+Regex expression
+Conversion de type de columme. (string -> int : parsing)
+Outlier Detection and Treatment.
+...
+
