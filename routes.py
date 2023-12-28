@@ -1,5 +1,6 @@
 from controllers.dataset_controller import upload_dataset,get_user_datasets, delete_dataset,dataset_data
-from controllers.Textual_controller import replaceString,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicatesInRow, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
+from controllers.Textual_controller import replaceString,removeHTML,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicates, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
+from controllers.Number_Controller import dropNull,LimiteValCol,replaceByLog_Transformation,replaceByMean,replaceByMedian,replaceByVal
 from controllers.user_controller import signup, login
 
 
@@ -27,6 +28,13 @@ def init_app_routes(app):
     app.add_url_rule('/lowercase', 'lowercase', lowercase, methods=['POST'])
     app.add_url_rule('/wordEmbedding', 'wordEmbedding', wordEmbedding, methods=['POST'])
     
-    
+     #routes Of numbers cleanning
+    app.add_url_rule('/dropNull', 'dropNull', dropNull, methods=['POST'])  # Attributs : column,dataset_id
+    app.add_url_rule('/replaceByMean', 'replaceByMean', replaceByMean, methods=['POST'])  # Attributs : column,dataset_id
+    app.add_url_rule('/replaceByMedian', 'replaceByMedian', replaceByMedian, methods=['POST'])  # Attributs : column,dataset_id
+    app.add_url_rule('/replaceByVal', 'replaceByVal', replaceByVal, methods=['POST'])  # Attributs : column,dataset_id,valeur
+    app.add_url_rule('/LimiteValCol', 'LimiteValCol', LimiteValCol, methods=['POST'])  # Attributs : column,dataset_id,valeur1,valeur2 
+    app.add_url_rule('/replaceByLog_Transformation','replaceByLog_Transformation', replaceByLog_Transformation, methods=['POST'])
+    # Attributs : column,dataset_id
     
     
