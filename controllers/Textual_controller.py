@@ -28,7 +28,7 @@ def replaceString():
         for item in dataset:
             item[column] = item[column].replace(oldString, newString)
         update_dataset(dataset_id, dataset)
-        return jsonify({'message': 'String replaced successfully', 'dataset': dataset})
+        return jsonify({'message': 'String replaced successfully', 'dataset': dataset[:50]})
     except Exception as e:
         return jsonify({'message': str(e)})
     

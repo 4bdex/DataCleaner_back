@@ -1,6 +1,8 @@
+from datetime import datetime
 import io
 import csv
 import json
+import sys
 import pandas as pd
 from flask import Flask, g, request, jsonify, make_response
 from werkzeug.utils import secure_filename
@@ -25,6 +27,23 @@ def update_dataset(dataset_id, dataset):
     except Exception as e:
         return False
 
+
+def convert_size(size_bytes):
+    # Define units for size conversion
+    KB = 1024.0
+    MB = KB * KB
+    
+    # Convert size to KB or MB based on magnitude
+    if size_bytes >= MB:
+        size = "{:.2f} MB".format(size_bytes / MB)
+    elif size_bytes >= KB:
+        size = "{:.2f} KB".format(size_bytes / KB)
+    else:
+        size = "{:.2f} bytes".format(size_bytes)
+    
+    return size
+
+
 @token_required
 def upload_dataset(user):
     try:
@@ -37,21 +56,24 @@ def upload_dataset(user):
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            
+            file_size = request.headers.get('Content-Length', type=int)
             if filename.rsplit('.', 1)[1].lower() == 'csv':
                 dataset = pd.read_csv(file)
             elif filename.rsplit('.', 1)[1].lower() == 'json':
                 dataset = pd.read_json(file)
             elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
                 dataset = pd.read_excel(file)
-                
-            print(user)
+            
             user_id = user['_id']
-
+    
             dataset_id = collection.insert_one({
                 'user_id': user_id,
-                'dataset_name': filename,  # Include dataset name in the document
-                'data': json.loads(dataset.to_json(orient='records'))
+                'dataset_name': filename, 
+                'data': json.loads(dataset.to_json(orient='records')),
+                "rows": dataset.shape[0],
+                "columns": dataset.shape[1],
+                "date" : datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                "size": convert_size(file_size)
             }).inserted_id
             
             return jsonify({
@@ -66,20 +88,32 @@ def upload_dataset(user):
 
 
 def get_dataset(dataset_id):
-    dataset = collection.find_one({'_id': ObjectId(dataset_id)})
+    dataset = collection.find_one({'_id': ObjectId(dataset_id)}, {'data': 1})
     if dataset:
-        return jsonify({'data': json.loads(dataset['data'])})
+        return dataset['data']
     else:
         return jsonify({'error': 'Dataset not found'})
- 
-@token_required   
+    
+def dataset_data(dataset_id):
+    try:
+        dataset = collection.find({'_id': ObjectId(dataset_id)}, {'data': 1}).limit(50)
+        if dataset:
+            data_list = [doc['data'] for doc in dataset]
+            return jsonify(data_list), 200
+        else:
+            return jsonify({'error': 'Dataset not found'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+    
+@token_required
 def get_user_datasets(user):
     try:
-        user_datasets = list(collection.find({'user_id': user['_id']}, {'dataset_name': 1}))
+        user_datasets = list(collection.find({'user_id': user['_id']}, {'dataset_name': 1, 'date': 1, 'size': 1, 'rows': 1, 'columns': 1}))
         datasets_info = []
 
         for dataset in user_datasets:
-            dataset_info = {'_id': str(dataset['_id']), 'dataset_name': dataset['dataset_name']}
+            dataset_info = {'_id': str(dataset['_id']), 'dataset_name': dataset['dataset_name'], "rows": dataset["rows"], "columns": dataset["columns"], "date" : dataset["date"], "size": dataset["size"]}
             datasets_info.append(dataset_info) 
         print(datasets_info)
         return jsonify({"datasets": datasets_info}), 200
@@ -88,4 +122,9 @@ def get_user_datasets(user):
         return {'error': str(e)} 
     
 
-    
+def delete_dataset(dataset_id):
+    try:
+        collection.delete_one({'_id': ObjectId(dataset_id)})
+        return jsonify({'message': 'Dataset deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
