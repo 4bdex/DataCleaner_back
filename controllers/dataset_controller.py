@@ -8,7 +8,7 @@ from bson import ObjectId
 from pymongo import MongoClient
 
 client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')  # Connect to your MongoDB instance
-db = client['dataset_db']
+db = client['DataCleaner']
 collection = db['datasets']
 
 

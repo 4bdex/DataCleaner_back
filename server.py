@@ -4,6 +4,7 @@ from routes import init_app_routes
 from flask_cors import CORS
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "secretkey"
 CORS(app)
 cors = CORS(app, resource={
     r"/*":{
