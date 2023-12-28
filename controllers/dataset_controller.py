@@ -2,17 +2,18 @@ import io
 import csv
 import json
 import pandas as pd
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, g, request, jsonify, make_response
 from werkzeug.utils import secure_filename
 from bson import ObjectId
 from pymongo import MongoClient
+from controllers.utils import token_required
 
-client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')  # Connect to your MongoDB instance
+client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
 db = client['DataCleaner']
 collection = db['datasets']
 
 
-ALLOWED_EXTENSION = {'csv','json','xlsx'} # Define allowed file extensions
+ALLOWED_EXTENSION = {'csv','json','xlsx'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
@@ -24,17 +25,19 @@ def update_dataset(dataset_id, dataset):
     except Exception as e:
         return False
 
-def upload_dataset():
+@token_required
+def upload_dataset(user):
     try:
         if 'file' not in request.files:
-            return make_response(jsonify({'error': 'No file part'}),400)
+            return jsonify({'error': 'No file part'}), 400
         
         file = request.files['file']
         if file.filename == '':
-            return make_response(jsonify({'error': 'No selected file'}),400)
+            return jsonify({'error': 'No selected file'}), 400
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
+            
             if filename.rsplit('.', 1)[1].lower() == 'csv':
                 dataset = pd.read_csv(file)
             elif filename.rsplit('.', 1)[1].lower() == 'json':
@@ -42,12 +45,25 @@ def upload_dataset():
             elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
                 dataset = pd.read_excel(file)
                 
-            dataset_id = collection.insert_one({'data': dataset.to_json(orient='records')}).inserted_id
-            return make_response(jsonify({'message': 'Dataset uploaded successfully', 'dataset_id': str(dataset_id),'dataset': json.loads(dataset.head(50).to_json(orient='records'))}),200)
+            print(user)
+            user_id = user['_id']
+
+            dataset_id = collection.insert_one({
+                'user_id': user_id,
+                'dataset_name': filename,  # Include dataset name in the document
+                'data': json.loads(dataset.to_json(orient='records'))
+            }).inserted_id
+            
+            return jsonify({
+                'message': 'Dataset uploaded successfully',
+                'dataset_id': str(dataset_id),
+                'dataset': json.loads(dataset.head(50).to_json(orient='records'))
+            }), 200
         else:
-            return make_response(jsonify({'error': 'Invalid file type'}),400)
+            return jsonify({'error': 'Invalid file type'}), 400
     except Exception as e:
-        return make_response(jsonify({'error': str(e)}),400)
+        return jsonify({'error': str(e)}), 400
+
 
 def get_dataset(dataset_id):
     dataset = collection.find_one({'_id': ObjectId(dataset_id)})
@@ -55,31 +71,21 @@ def get_dataset(dataset_id):
         return jsonify({'data': json.loads(dataset['data'])})
     else:
         return jsonify({'error': 'Dataset not found'})
-    
-    
-## upload all supported files formats (csv, json, txt, xml, html, pdf, docx, pptx, xlsx)
-def upload_dataset2():
+ 
+@token_required   
+def get_user_datasets(user):
     try:
-        if 'file' not in request.files:
-            return jsonify({'Message': 'No file part'})
-        
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'Message': 'No selected file'})
-        
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            if filename.rsplit('.', 1)[1].lower() == 'csv':
-                dataset = pd.read_csv(file).to_dict(orient='records')
-            elif filename.rsplit('.', 1)[1].lower() == 'json':
-                dataset = pd.read_json(file).to_dict(orient='records')
-            elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
-                dataset = pd.read_excel(file).to_dict(orient='records')
-            else:
-                return jsonify({'Message': 'Invalid file type'})
-      
-            return jsonify({'Message': 'Dataset uploaded successfully', 'dataset': dataset})
-        else:
-            return jsonify({'Message': 'Invalid file type'})
+        user_datasets = list(collection.find({'user_id': user['_id']}, {'dataset_name': 1}))
+        datasets_info = []
+
+        for dataset in user_datasets:
+            dataset_info = {'_id': str(dataset['_id']), 'dataset_name': dataset['dataset_name']}
+            datasets_info.append(dataset_info) 
+        print(datasets_info)
+        return jsonify({"datasets": datasets_info}), 200
+
     except Exception as e:
-        return jsonify({'Message': str(e)})
+        return {'error': str(e)} 
+    
+
+    

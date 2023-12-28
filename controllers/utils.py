@@ -22,9 +22,8 @@ def token_required(f):
             
             # Fetch user data based on email from MongoDB or your user database
             client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
-            db = client['dataset_db']
+            db = client['DataCleaner']
             users_collection = db['users']
-            
             user = users_collection.find_one({'email': user_email})
             
             if not user:

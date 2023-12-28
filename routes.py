@@ -1,5 +1,5 @@
 from flask import jsonify
-from controllers.dataset_controller import upload_dataset, get_dataset
+from controllers.dataset_controller import upload_dataset, get_dataset,get_user_datasets
 from controllers.Textual_controller import replaceString,removeHTML,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicates, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
 from controllers.utils import token_required
 from controllers.user_controller import signup, login
@@ -9,6 +9,7 @@ def init_app_routes(app):
     app.add_url_rule('/signup', 'signup', signup, methods=['POST'])
     app.add_url_rule('/login', 'login', login, methods=['POST'])
     app.add_url_rule('/upload', 'upload_dataset', upload_dataset, methods=['POST'])
+    app.add_url_rule('/get_user_datasets', 'get_user_datasets', get_user_datasets, methods=['POST'])
     app.add_url_rule('/get_dataset/<string:dataset_id>', 'get_dataset', get_dataset, methods=['GET'])
     app.add_url_rule('/replaceString', 'replaceString', replaceString, methods=['POST'])
     app.add_url_rule('/removeHTML', 'removeHTML', removeHTML, methods=['POST'])
