@@ -189,3 +189,17 @@ def get_line():
         return jsonify({'image': base64_img}),200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ---------------------------------------------------------pandas describe function--------------------------------------------------------------------
+def get_describe():
+    try:
+        dt = request.get_json()
+        dataset_id = dt['dataset_id']
+        data = get_dataset(dataset_id)
+        if not data:
+            return jsonify({'error': 'No data found for this id'}), 404
+        df = pd.DataFrame(data)
+        return jsonify({'describe': df.describe().to_json()}),200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
