@@ -263,12 +263,10 @@ def wordEmbedding():
         embedding = data['embedding']
         dataset = get_dataset(dataset_id)
         
-        if embedding == 'word2vec':
+        if embedding == 'word2vec':            
             text_data = [item[column] for item in dataset]
             word_lists = [TextBlob(text).words for text in text_data]
-            # Train Word2Vec model
-            model = Word2Vec(word_lists, min_count=1)  # Adjust parameters as needed
-            # Replace words with their Word2Vec embeddings
+            model = Word2Vec(word_lists, min_count=1) 
             for i, item in enumerate(dataset):
                 word_vectors = []
                 for word in word_lists[i]:
@@ -278,6 +276,8 @@ def wordEmbedding():
                     except:          
                         return {'message': '{} not in vocabulary. Consider using a different word embedding.'.format(word)}
                 item[column] = word_vectors
+            update_dataset(dataset_id, dataset)
+            print("updated")
             return json.loads(json.dumps({'message': 'Word embedding performed successfully', 'dataset': dataset[:50]}, default=lambda x: x.tolist()))
         
         
@@ -286,19 +286,20 @@ def wordEmbedding():
             vectorizer = CountVectorizer()
             bag_of_words = vectorizer.fit_transform(text_data).toarray().tolist()
             for i, item in enumerate(dataset):
-                item[column] = bag_of_words[i]  # Compute bag-of-words embeddings
+                item[column] = bag_of_words[i]
         
         elif embedding == 'TF-IDF':
             text_data = [item[column] for item in dataset]
-            # Ensure text_data is a list of strings
             if isinstance(text_data[0], list):
                 text_data = [' '.join(item) for item in text_data]
             vectorizer = TfidfVectorizer()
             tfidf_matrix = vectorizer.fit_transform(text_data).toarray().tolist()
             for i, item in enumerate(dataset):
                 item[column] = tfidf_matrix[i]
-                
+        
+        print("before")
         update_dataset(dataset_id, dataset)
+        print("after")
         return {'message': 'Word embedding performed successfully', 'dataset': dataset[:50]}
     
     except Exception as e:

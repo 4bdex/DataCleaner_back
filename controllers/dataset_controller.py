@@ -94,10 +94,10 @@ def get_dataset(dataset_id):
     
 def dataset_data(dataset_id):
     try:
-        dataset = collection.find({'_id': ObjectId(dataset_id)}, {'data': 1}).limit(50)
+        dataset = collection.find_one({'_id': ObjectId(dataset_id)}, {'data': 1})
         if dataset:
-            data_list = [doc['data'] for doc in dataset]
-            return jsonify(data_list), 200
+            dataset = dataset['data'][:50]
+            return jsonify(dataset), 200
         else:
             return jsonify({'error': 'Dataset not found'}), 400
     except Exception as e:
