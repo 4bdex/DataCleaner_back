@@ -12,7 +12,7 @@ db = client['DataCleaner']
 collection = db['datasets']
 
 
-ALLOWED_EXTENSION = {'csv','json','xlsx'}
+ALLOWED_EXTENSION = {'csv','json','xlsx','xls'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
