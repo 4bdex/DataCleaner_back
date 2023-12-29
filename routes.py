@@ -1,8 +1,9 @@
 from controllers.dataset_controller import upload_dataset,get_user_datasets, delete_dataset,dataset_data
 from controllers.Textual_controller import replaceString,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicatesInRow, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
 from controllers.Number_Controller import dropNull,LimiteValCol,replaceByLog_Transformation,replaceByMean,replaceByMedian,replaceByVal
+from controllers.utils import token_required
 from controllers.user_controller import signup, login
-
+from controllers.dataVis import get_histogram,get_boxplot,get_scatter,get_bar,get_pie,get_line,get_describe
 
 def init_app_routes(app):
     #dataset routes
@@ -27,7 +28,14 @@ def init_app_routes(app):
     app.add_url_rule('/getTextFromHTML', 'getTextFromHTML', getTextFromHTML, methods=['POST'])
     app.add_url_rule('/lowercase', 'lowercase', lowercase, methods=['POST'])
     app.add_url_rule('/wordEmbedding', 'wordEmbedding', wordEmbedding, methods=['POST'])
-    
+    #dataVis routes
+    app.add_url_rule('/get_histogram', 'get_histogram', get_histogram, methods=['POST'])
+    app.add_url_rule('/get_boxplot', 'get_boxplot', get_boxplot, methods=['POST'])
+    app.add_url_rule('/get_scatter', 'get_scatter', get_scatter, methods=['POST'])
+    app.add_url_rule('/get_bar', 'get_bar', get_bar, methods=['POST'])
+    app.add_url_rule('/get_pie', 'get_pie', get_pie, methods=['POST'])
+    app.add_url_rule('/get_line', 'get_line', get_line, methods=['POST'])
+    app.add_url_rule('/get_describe', 'get_describe', get_describe, methods=['POST'])
      #routes Of numbers cleanning
     app.add_url_rule('/dropNull', 'dropNull', dropNull, methods=['POST'])  # Attributs : column,dataset_id
     app.add_url_rule('/replaceByMean', 'replaceByMean', replaceByMean, methods=['POST'])  # Attributs : column,dataset_id
