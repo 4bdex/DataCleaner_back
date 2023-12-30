@@ -1,6 +1,6 @@
 from controllers.dataset_controller import upload_dataset,get_user_datasets, delete_dataset,dataset_data
 from controllers.Textual_controller import replaceString,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicatesInRow, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
-from controllers.Number_Controller import dropNull,LimiteValCol,replaceByLog_Transformation,replaceByMean,replaceByMedian,replaceByVal
+from controllers.Number_Controller import dropNull,LimiteValCol,replaceByLog_Transformation,replaceByMean,replaceByMedian,replaceByVal,dropDuplicates,parseToInt,RoundingAndPrecision
 from controllers.utils import token_required
 from controllers.user_controller import signup, login
 from controllers.dataVis import get_histogram,get_boxplot,get_scatter,get_bar,get_pie,get_line,get_describe
@@ -42,7 +42,10 @@ def init_app_routes(app):
     app.add_url_rule('/replaceByMedian', 'replaceByMedian', replaceByMedian, methods=['POST'])  # Attributs : column,dataset_id
     app.add_url_rule('/replaceByVal', 'replaceByVal', replaceByVal, methods=['POST'])  # Attributs : column,dataset_id,valeur
     app.add_url_rule('/LimiteValCol', 'LimiteValCol', LimiteValCol, methods=['POST'])  # Attributs : column,dataset_id,valeur1,valeur2 
-    app.add_url_rule('/replaceByLog_Transformation','replaceByLog_Transformation', replaceByLog_Transformation, methods=['POST'])
-    # Attributs : column,dataset_id
+    app.add_url_rule('/replaceByLog_Transformation','replaceByLog_Transformation', replaceByLog_Transformation, methods=['POST']) # Attributs : column,dataset_id
+    app.add_url_rule('/RoundingAndPrecision','RoundingAndPrecision', RoundingAndPrecision, methods=['POST']) # Attributs : column,dataset_id,decimale
+    app.add_url_rule('/parseToInt','parseToInt', parseToInt, methods=['POST']) # Attributs : column,dataset_id
+    app.add_url_rule('/dropDuplicates','dropDuplicates', dropDuplicates, methods=['POST']) # Attributs : column,dataset_id
+
     
     
