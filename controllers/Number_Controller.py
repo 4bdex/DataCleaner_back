@@ -30,7 +30,6 @@ def dropNull():
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2=data2.dropna(subset=[col])
         update_dataset(dataset_id, data2) 
-        print(data2)
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
         return jsonify({'message': str(e)})
@@ -44,7 +43,6 @@ def replaceByMean():
         dataset_id=data['dataset_id']
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2[col]=data2[col].fillna(data2[col].mean())
-        print(data2)
         update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
         
@@ -131,7 +129,6 @@ def dropDuplicates():
         #data2 = data2.dropna(subset=[col])
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2.drop_duplicates(subset=col,inplace=True)
-        print(data2)
         update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
