@@ -7,9 +7,13 @@ from bson import ObjectId
 from pymongo import MongoClient
 from controllers.utils import token_required
 
-client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
-db = client['DataCleaner']
-collection = db['datasets']
+try:
+    client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
+    db = client['DataCleaner']
+    collection = db['datasets']
+except Exception as e:
+    print("error while connecting to mongoDB Atlas")
+    
 
 
 ALLOWED_EXTENSION = {'csv','json','xlsx','xls'}

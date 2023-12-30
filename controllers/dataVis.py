@@ -5,10 +5,7 @@ from bson.objectid import ObjectId
 import pandas as pd
 import base64
 import io
-from controllers.dataset_controller import get_dataset,update_dataset
-client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')  # Connect to your MongoDB instance
-db = client['dataset_db']
-collection = db['datasets']
+from controllers.dataset_controller import get_dataset
 
 
 #--------------------------------------------------------histogram function--------------------------------------------------------------------
