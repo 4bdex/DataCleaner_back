@@ -4,10 +4,12 @@ import jwt
 from datetime import datetime, timedelta
 from flask import current_app
 
-
-client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
-db = client['DataCleaner']
-collection = db['users']
+try:
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['DataCleaner']
+    collection = db['users']
+except Exception as e:
+    print("error while connecting to mongoDB Atlas")
 class User:
     def __init__(self, username, email, password):
         self.username = username

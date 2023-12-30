@@ -4,10 +4,12 @@ from flask_bcrypt import generate_password_hash
 from models.user_model import User
 
 
-
-client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
-db = client['DataCleaner']
-collection = db['users']
+try:
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['DataCleaner']
+    collection = db['users']
+except Exception as e:
+    print("error while connecting to mongoDB Atlas")
 
 def signup():
     try:
