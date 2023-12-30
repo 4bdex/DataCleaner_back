@@ -14,6 +14,7 @@ from gensim.models import Word2Vec
 from textblob import TextBlob
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from controllers.dataset_controller import get_dataset, update_dataset
+import nltk
 
 
 
@@ -73,8 +74,9 @@ def tokenize():
         dataset_id = data['dataset_id']
         column = data['column']
         dataset = get_dataset(dataset_id)
+        nltk.download('punkt')
         for item in dataset:
-            item[column] = word_tokenize(item[column])
+            item[column] = nltk.word_tokenize(item[column])
         update_dataset(dataset_id, dataset)
         return jsonify({'message': 'Column data tokenized successfully', 'dataset': dataset[:50]})
     except Exception as e:
