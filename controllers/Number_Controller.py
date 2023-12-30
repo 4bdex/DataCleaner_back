@@ -6,13 +6,16 @@ from controllers.dataset_controller import get_dataset,update_dataset
 
 #--------------------------------------------------------------------------PLAN---------------------------------------------------------------------
 
-#replace zero or null by :
-#    moyenne                 V
-#    mediane                 V
-#    valeur donner           V
-#    suppression des rows    V
-#    min , max colonne       V
-#    log Transformation      V
+# replace zero or null by :
+#    moyenne                 
+#    mediane                 
+#    valeur donner           
+#    suppression des rows    
+#    min , max colonne       
+#    Rows log Transformation      
+# dropDuplicates
+# parseToInt
+# RoundingAndPrecision
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 import warnings
@@ -26,7 +29,7 @@ def dropNull():
         dataset_id=data['dataset_id']
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2=data2.dropna(subset=[col])
-       # update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         print(data2)
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
@@ -42,7 +45,7 @@ def replaceByMean():
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2[col]=data2[col].fillna(data2[col].mean())
         print(data2)
-       # update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
         
     except Exception as e:
@@ -56,7 +59,7 @@ def replaceByMedian():
         dataset_id=data['dataset_id']
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2[col] = data2[col].fillna(data2[col].median())
-        #update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
        
     except Exception as e:
@@ -72,7 +75,7 @@ def replaceByVal():
         dataset_id=data['dataset_id']
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2[col]=data2[col].fillna(valeur)
-        #update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
             
           
@@ -93,9 +96,8 @@ def LimiteValCol():
         
         data2[col] = pd.to_numeric(data2[col], errors='coerce')
         #data2[col] = data2[col].fillna(0)
-        #data2[col] = data2[col].astype(int)
         data2[col] = data2[col].clip(lower=valeur1, upper=valeur2)
-       # update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
            
         
@@ -113,7 +115,7 @@ def replaceByLog_Transformation():
         dataset_id=data['dataset_id']
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2[col] = np.log1p(data2[col])
-        #update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
@@ -130,7 +132,7 @@ def dropDuplicates():
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2.drop_duplicates(subset=col,inplace=True)
         print(data2)
-        #update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
         return jsonify({'message': str(e)})
@@ -146,7 +148,7 @@ def RoundingAndPrecision():
         decimale=data['decimale']
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2[col]=data2[col].round(decimals=decimale)
-        #update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
         return jsonify({'message': str(e)})
@@ -161,7 +163,7 @@ def parseToInt():
         data2 = pd.json_normalize(get_dataset(dataset_id))
         data2=data2.dropna(subset=[col])
         data2[col]=data2[col].astype(int)
-        #update_dataset(dataset_id, data2) 
+        update_dataset(dataset_id, data2) 
         return jsonify({'data':json.loads(data2.to_json(orient='records'))})
     except Exception as e:
         return jsonify({'message': str(e)})
