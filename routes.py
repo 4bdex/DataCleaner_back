@@ -1,4 +1,4 @@
-from controllers.dataset_controller import upload_dataset,get_user_datasets, delete_dataset,dataset_data
+from controllers.dataset_controller import upload_dataset,get_user_datasets, delete_dataset,dataset_data, export_dataset
 from controllers.Textual_controller import replaceString,removeSpecialCharacters,tokenize,lowercase,removeStopwords,stemming,lemmatization,removeDuplicatesInRow, spellChecking,cleanWithCustomPatterns,handleEncodingIssues,removeWhitespaces,getTextFromHTML,wordEmbedding
 from controllers.Number_Controller import dropNull,LimiteValCol,replaceByLog_Transformation,replaceByMean,replaceByMedian,replaceByVal,dropDuplicates,parseToInt,RoundingAndPrecision
 from controllers.utils import token_required
@@ -13,6 +13,7 @@ def init_app_routes(app):
     app.add_url_rule('/dataset/<string:dataset_id>', 'dataset_data', dataset_data, methods=['GET'])
     app.add_url_rule('/dataset/<string:dataset_id>', 'delete_dataset', delete_dataset, methods=['DELETE'])
     app.add_url_rule('/get_user_datasets', 'get_user_datasets', get_user_datasets, methods=['GET'])
+    app.add_url_rule('/export_dataset', 'export_dataset', export_dataset, methods=['POST'])
     # texte handling routes
     app.add_url_rule('/replaceString', 'replaceString', replaceString, methods=['POST'])
     app.add_url_rule('/removeSpecialCharacters', 'removeSpecialCharacters', removeSpecialCharacters, methods=['POST'])

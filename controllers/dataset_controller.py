@@ -1,11 +1,13 @@
 from datetime import datetime
 import json
 import pandas as pd
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from bson import ObjectId
 from pymongo import MongoClient
 from controllers.utils import token_required
+import tempfile
+import openpyxl
 
 try:
     client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
@@ -131,4 +133,38 @@ def delete_dataset(dataset_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-# export dataset as csv , xlsx or json
+
+def export_dataset():
+    try:
+        data = request.get_json()
+        dataset_id = data['dataset_id']
+        file_type = data['file_type']
+        dataset = get_dataset(dataset_id)
+        dataset_name = collection.find_one({'_id': ObjectId(dataset_id)}, {'dataset_name': 1})['dataset_name']
+        if dataset:
+            dataset = pd.DataFrame(dataset)
+            
+            if file_type == 'csv':
+                temp_file = tempfile.NamedTemporaryFile(suffix='.csv', delete=False)
+                dataset.to_csv(temp_file.name, index=False)
+                return send_file(temp_file.name, as_attachment=True, download_name=dataset_name, mimetype="text/csv"), 200
+            
+            elif file_type == 'json':
+                temp_file = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
+                dataset.to_json(temp_file.name, orient='records')
+                return send_file(temp_file.name, as_attachment=True, download_name=dataset_name, mimetype='application/json'), 200
+            
+            elif file_type == 'xlsx':
+                temp_file = tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False)
+                dataset.to_excel(temp_file.name, index=False)
+                print(temp_file.name)
+                return send_file(temp_file.name, as_attachment=True, download_name= dataset_name, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 200
+            
+            return jsonify({'error': 'Unsupported file type'}), 400
+            
+        else:
+            return jsonify({'error': 'Dataset not found'}), 400
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
