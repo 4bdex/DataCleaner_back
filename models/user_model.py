@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from flask import current_app
 
 try:
-    client = MongoClient('mongodb://localhost:27017/')
+    client = MongoClient('mongodb+srv://guest:Anaguest@bdcc.ltvlqmq.mongodb.net/')
     db = client['DataCleaner']
     collection = db['users']
 except Exception as e:
