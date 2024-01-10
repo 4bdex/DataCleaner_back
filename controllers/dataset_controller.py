@@ -1,12 +1,14 @@
 from datetime import datetime
 import json
+import os
 import pandas as pd
-from flask import request, jsonify, send_file
+from flask import request, jsonify, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 from bson import ObjectId
 from pymongo import MongoClient
 from controllers.utils import token_required
 import tempfile
+from collections import OrderedDict
 import openpyxl
 
 try:
@@ -55,19 +57,36 @@ def upload_dataset(user):
             return jsonify({'error': 'No file part'}), 400
         
         file = request.files['file']
+        has_header = request.form.get('has_header')
+            
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_size = request.headers.get('Content-Length', type=int)
-            if filename.rsplit('.', 1)[1].lower() == 'csv':
-                dataset = pd.read_csv(file)
-            elif filename.rsplit('.', 1)[1].lower() == 'json':
-                dataset = pd.read_json(file)
-            elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
-                dataset = pd.read_excel(file)
-            
+            print(has_header)
+            if has_header == '1':
+                print("header found")
+                if filename.rsplit('.', 1)[1].lower() == 'csv':
+                    dataset = pd.read_csv(file)
+                elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
+                    dataset = pd.read_excel(file)
+            else:
+                print("header not found")
+                if filename.rsplit('.', 1)[1].lower() == 'csv':
+                    dataset = pd.read_csv(file, header=None)
+                    default_columns = [f"Column {i+1}" for i in range(dataset.shape[1])]
+                    dataset.columns = default_columns
+                
+                elif filename.rsplit('.', 1)[1].lower() == 'xlsx':
+                    dataset = pd.read_excel(file, header=None)
+                    default_columns = [f"Column {i+1}" for i in range(dataset.shape[1])]
+                    #dataset = pd.read_excel(file, header=None, names=default_columns)
+                    dataset.columns = default_columns       
+                
+            if filename.rsplit('.', 1)[1].lower() == 'json':
+                    dataset = pd.read_json(file)
             user_id = user['_id']
     
             dataset_id = collection.insert_one({
@@ -103,7 +122,7 @@ def dataset_data(dataset_id):
         dataset = collection.find_one({'_id': ObjectId(dataset_id)}, {'data': 1})
         if dataset:
             dataset = dataset['data'][:50]
-            return jsonify(dataset), 200
+            return json.dumps(dataset), 200
         else:
             return jsonify({'error': 'Dataset not found'}), 400
     except Exception as e:
@@ -141,30 +160,28 @@ def export_dataset():
         file_type = data['file_type']
         dataset = get_dataset(dataset_id)
         dataset_name = collection.find_one({'_id': ObjectId(dataset_id)}, {'dataset_name': 1})['dataset_name']
+
         if dataset:
             dataset = pd.DataFrame(dataset)
-            
+
+            # Create a temporary directory to store temporary files
+            temp_dir = tempfile.TemporaryDirectory()
+            temp_file_path = os.path.join(temp_dir.name, f"Dataset.{file_type}")
+
             if file_type == 'csv':
-                temp_file = tempfile.NamedTemporaryFile(suffix='.csv', delete=False)
-                dataset.to_csv(temp_file.name, index=False)
-                return send_file(temp_file.name, as_attachment=True, download_name=dataset_name, mimetype="text/csv"), 200
-            
+                dataset.to_csv(temp_file_path, index=False)
             elif file_type == 'json':
-                temp_file = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
-                dataset.to_json(temp_file.name, orient='records')
-                return send_file(temp_file.name, as_attachment=True, download_name=dataset_name, mimetype='application/json'), 200
-            
+                dataset.to_json(temp_file_path, orient='records')
             elif file_type == 'xlsx':
-                temp_file = tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False)
-                dataset.to_excel(temp_file.name, index=False)
-                print(temp_file.name)
-                return send_file(temp_file.name, as_attachment=True, download_name= dataset_name, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 200
-            
-            return jsonify({'error': 'Unsupported file type'}), 400
-            
+                dataset.to_excel(temp_file_path, index=False)
+            else:
+                return jsonify({'error': 'Unsupported file type'}), 400
+
+            # Send the file as an attachment
+            return send_file(temp_file_path, as_attachment=True, download_name=dataset_name), 200
+
         else:
             return jsonify({'error': 'Dataset not found'}), 400
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
