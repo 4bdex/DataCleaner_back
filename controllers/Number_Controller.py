@@ -25,14 +25,15 @@ warnings.filterwarnings('ignore')
 def dropNull():
     try:
         data = request.get_json()
-        col=data['column']
-        dataset_id=data['dataset_id']
-        data2 = pd.json_normalize(get_dataset(dataset_id))
-        data2=data2.dropna(subset=[col])
-        update_dataset(dataset_id, data2) 
-        return jsonify({'data':json.loads(data2.to_json(orient='records'))})
+        dataset_id = data['dataset_id']
+        dataset = get_dataset(dataset_id)
+        dataset = pd.DataFrame(dataset)
+        dataset = dataset.dropna(subset=["age"])
+        dataset = dataset.to_dict('records')
+        update_dataset(dataset_id, dataset)
+        return jsonify({'message': 'Null values dropped successfully', 'dataset': dataset[:50]})
     except Exception as e:
-        return jsonify({'message': str(e)})
+        return jsonify({'error': str(e)})
       
 #print(dropNull(data,'cabin'))
 #-------------------------------------------------Moyenne------------------------------------------------------------------------------------------
