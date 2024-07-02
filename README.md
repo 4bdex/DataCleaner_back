@@ -39,12 +39,7 @@ pip install -r requirements.txt
 
 ## Configuration
 ### MongoDB
-Ensure you have a MongoDB instance running. Update the `Ressources.txt` file with your MongoDB credentials:
-```text
-Mongo cloud -----------
-username : guest
-password : guest
-```
+Ensure you have a MongoDB instance running. you can learn everything you need to do following this link: https://www.mongodb.com/docs/
 
 ## Usage
 
