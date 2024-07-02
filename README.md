@@ -64,4 +64,4 @@ pip install -r requirements.txt
 ## Contributors
 - **Numeric Data Processing**: Mohammed
 - **Textual Data Processing**: @4bdex
-- **Non generic Data Processing**: @Khalid4dev
+- **None generic Data Processing**: @Khalid4dev
