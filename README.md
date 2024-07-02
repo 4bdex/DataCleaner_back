@@ -1,4 +1,4 @@
-# Data_Cleaner_API
+# Data_Cleaner_APIs
 
 ## Overview
 This project is designed to handle various types of data processing, including numeric and textual data, using a web server built with Flask. The server interacts with a MongoDB database and includes functionality for natural language processing (NLP), data transformation, and outlier detection.
